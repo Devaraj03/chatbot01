@@ -6,71 +6,112 @@
   <title>Chatbot</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background: #f4f4f7;
       margin: 0;
+      background: #e5e5ea;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
     }
+
+    .header {
+      padding: 15px 20px;
+      background: #007aff;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+    }
+
     .chat-container {
       flex: 1;
-      padding: 1rem;
+      padding: 15px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
     }
-    .chat-bubble {
-      max-width: 70%;
+
+    .chat-message {
+      max-width: 80%;
       margin-bottom: 10px;
-      padding: 10px 15px;
-      border-radius: 18px;
+      padding: 12px 16px;
       line-height: 1.5;
+      font-size: 1rem;
+      border-radius: 6px;
     }
-    .user {
+
+    .user-message {
       align-self: flex-end;
-      background: #0078ff;
-      color: white;
+      background: #ccc;
+      color: rgb(0, 0, 0);
     }
-    .bot {
+
+    .bot-message {
       align-self: flex-start;
-      background: #e0e0e0;
+      background: #f1f0f0;
       color: #000;
     }
+
     .input-container {
       display: flex;
       padding: 10px;
       border-top: 1px solid #ccc;
       background: #fff;
+      flex-shrink: 0;
+      align-items: center;
     }
+
     input {
       flex: 1;
-      padding: 10px;
+      padding: 12px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 20px;
       font-size: 1rem;
+      outline: none;
     }
+
     button {
       margin-left: 10px;
-      padding: 10px 20px;
+      padding: 12px 20px;
       font-size: 1rem;
-      background: #0078ff;
+      background: #007aff;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 20px;
       cursor: pointer;
+    }
+
+    /* iPhone-style mobile layout */
+    @media (max-width: 768px) {
+      .input-container {
+        flex-direction: row; /* Align input and button horizontally */
+        gap: 10px;
+        padding: 10px 15px;
+      }
+
+      button {
+        width: auto; /* Maintain button width based on content */
+      }
     }
   </style>
 </head>
 <body>
+
+  <div class="header">ChatBot</div>
 
   <div class="chat-container" id="chat">
     <!-- Chat messages will appear here -->
   </div>
 
   <form class="input-container" id="chat-form">
-    <input type="text" id="message" placeholder="Type a message..." required />
+    <input type="text" id="message" placeholder="Type your message..." />
     <button type="submit">Send</button>
   </form>
 
@@ -80,17 +121,23 @@
     const input = document.getElementById("message");
 
     function appendMessage(text, sender) {
-      const bubble = document.createElement("div");
-      bubble.classList.add("chat-bubble", sender);
-      bubble.textContent = text;
-      chat.appendChild(bubble);
+      const message = document.createElement("div");
+      message.classList.add("chat-message", sender);
+      message.textContent = text;
+      chat.appendChild(message);
       chat.scrollTop = chat.scrollHeight;
     }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const userMsg = input.value;
-      appendMessage(userMsg, "user");
+      const userMsg = input.value.trim();
+
+      if (!userMsg) {
+        input.placeholder = "Please type something...";
+        return;
+      }
+
+      appendMessage(userMsg, "user-message");
       input.value = "";
 
       const res = await fetch("/chat", {
@@ -100,9 +147,9 @@
       });
 
       const data = await res.json();
-      appendMessage(data.reply, "bot");
+      appendMessage(data.reply || "Sorry, no reply.", "bot-message");
     });
   </script>
 
-</body>
+</body>  
 </html>
